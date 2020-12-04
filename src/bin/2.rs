@@ -1,13 +1,11 @@
 fn main() {
-    let p1 = passwords(|min, max, c, password| (min..=max).contains(&password.matches(c).count()));
+    println!("Part 1: {}", passwords(|min, max, c, password| (min..=max).contains(&password.matches(c).count())));
 
-    let p2 = passwords(|i, j, c, password| [i, j]
+    println!("Part 2: {}", passwords(|i, j, c, password| [i, j]
         .iter()
         .filter(|i| password.as_bytes()[*i - 1] == c.as_bytes()[0])
-        .count() == 1);
-
-    println!("Part 1: {}", p1);
-    println!("Part 2: {}", p2);
+        .count() == 1
+    ));
 }
 
 fn passwords(p: fn(usize, usize, &str, &str) -> bool) -> usize {
