@@ -1,6 +1,6 @@
 fn main() {
     println!("Part 1: {}", run(false));
-    println!("Part 1: {}", run(true));
+    println!("Part 2: {}", run(true));
 }
 
 fn run(precedence: bool) -> usize {

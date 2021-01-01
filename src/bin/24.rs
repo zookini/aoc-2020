@@ -1,3 +1,6 @@
+use std::unreachable;
+
+use aoc::regex;
 use itertools::iproduct;
 
 type HashMap<K, V> = std::collections::HashMap<K, V, std::hash::BuildHasherDefault<fnv::FnvHasher>>;
@@ -6,7 +9,7 @@ type HashSet<K> = std::collections::HashSet<K, std::hash::BuildHasherDefault<fnv
 fn main() {
     let blacks: HashSet<(i32, i32)> = include_str!("../../input/24.txt")
         .lines()
-        .map(|line| parse(line.chars()).fold((0, 0), |(x, y), (dx, dy)| (x + dx, y + dy)))
+        .map(|line| parse(line).fold((0, 0), |(x, y), (dx, dy)| (x + dx, y + dy)))
         .fold(HashMap::default(), |mut tiles, point| {
             tiles.entry(point).and_modify(|p| *p = if *p == "black" { "white" } else { "black" }).or_insert("black");
             tiles
@@ -20,21 +23,15 @@ fn main() {
     println!("Part 2: {}", run(blacks, 100));
 }
 
-fn parse(mut steps: impl Iterator<Item = char>) -> impl Iterator<Item = (i32, i32)> {
-    std::iter::from_fn(move || match steps.next() {
-        Some('e') => Some((-2, 0)),
-        Some('w') => Some((2, 0)),
-        Some('n') => Some(match steps.next() {
-            Some('e') => (-1, -1),
-            Some('w') => (1, -1),
-            _ => unreachable!()
-        }),
-        Some('s') => Some(match steps.next() {
-            Some('e') => (-1, 1),
-            Some('w') => (1, 1),
-            _ => unreachable!()
-        }),
-        _ => None
+fn parse(directions: &str) -> impl Iterator<Item = (i32, i32)> + '_ {
+    regex!("(n|s)?.").captures_iter(directions).map(|cap| match &cap[0] {
+        "ne" => (-1, -1),
+        "nw" => (1, -1),
+        "se" => (-1, 1),
+        "sw" => (1, 1),
+        "e" => (-2, 0),
+        "w" => (2, 0),
+        _ => unreachable!()
     })
 }
 
@@ -49,10 +46,8 @@ fn day(blacks: &HashSet<(i32, i32)>) -> HashSet<(i32, i32)> {
             next.entry(point).and_modify(|count| *count += 1).or_insert(1);
             next
         })
-        .iter()
-        .filter_map(|(point, &count)| match (blacks.contains(point), count) {
-            (true, 1) | (true, 2) | (false, 2) => Some(*point),
-            _ => None
-        })
+        .into_iter()
+        .filter(|(point, count)| matches!((blacks.contains(point), count), (true, 1..=2) | (false, 2)))
+        .map(|(point, _)| point)
         .collect()
 }

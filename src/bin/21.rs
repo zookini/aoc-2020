@@ -7,7 +7,7 @@ fn main() {
         .filter_map(|line| line
             .split(" (contains ")
             .collect_tuple()
-            .map(|(ingredients, allergens)| (ingredients.split(" ").collect(), allergens[..allergens.len() - 1].split(", ").collect()))
+            .map(|(ingredients, allergens)| (ingredients.split(' ').collect(), allergens[..allergens.len() - 1].split(", ").collect()))
         )
         .collect();
 

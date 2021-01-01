@@ -1,16 +1,12 @@
 use itertools::Itertools;
 
 fn main() {
-    let input: Vec<usize> = include_str!("../../input/9.txt")
-        .lines()
-        .map(|line| line.parse().unwrap())
-        .collect();
-
+    let input: Vec<usize> = include_str!("../../input/9.txt").lines().map(|line| line.parse().unwrap()).collect();
     let width = 25;
 
     let p1 = input
         .windows(width + 1)
-        .find(|w| w[..width].iter().combinations(2).find(|p| p[0] + p[1] == w[width]).is_none())
+        .find(|w| w[..width].iter().combinations(2).all(|p| p[0] + p[1] != w[width]))
         .unwrap()[width];
 
     println!("Part 1: {}", p1);

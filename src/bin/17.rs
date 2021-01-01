@@ -1,4 +1,4 @@
-use itertools::iproduct;
+use itertools::{enumerate, iproduct};
 use std::collections::{HashMap, HashSet};
 use std::ops::RangeInclusive;
 
@@ -7,26 +7,20 @@ fn main() {
     println!("Part 2: {}", run(-1..=1));
 }
 
-fn run(w: RangeInclusive<i16>) -> usize {
-    let active: HashSet<[i16; 4]> = include_str!("../../input/17.txt")
-        .lines()
-        .enumerate()
-        .flat_map(|(y, line)| line
-            .chars()
-            .enumerate()
-            .filter(|&(_, c)| c == '#')
-            .map(move |(x, _)| [x as i16, y as i16, 0, 0]))
+fn run(wrange: RangeInclusive<i16>) -> usize {
+    let active: HashSet<[i16; 4]> = enumerate(include_str!("../../input/17.txt").lines())
+        .flat_map(|(y, line)| line.chars().enumerate().filter(|&(_, c)| c == '#').map(move |(x, _)| [x as i16, y as i16, 0, 0]))
         .collect();
 
-    (0..6).fold(active, |active, _| cycle(&active, &w)).len()
+    (0..6).fold(active, |active, _| cycle(&active, &wrange)).len()
 }
 
-fn cycle(active: &HashSet<[i16; 4]>, w: &RangeInclusive<i16>) -> HashSet<[i16; 4]> {
+fn cycle(active: &HashSet<[i16; 4]>, wrange: &RangeInclusive<i16>) -> HashSet<[i16; 4]> {
     active
         .iter()
-        .flat_map(|cube| iproduct!((-1..=1), (-1..=1), (-1..=1), w.clone())
+        .flat_map(|&[x, y, z, w]| iproduct!((-1..=1), (-1..=1), (-1..=1), wrange.clone())
             .filter(|&delta| delta != (0, 0, 0, 0)) 
-            .map(move |delta| [cube[0] + delta.0, cube[1] + delta.1, cube[2] + delta.2, cube[3] + delta.3])
+            .map(move |(dx, dy, dz, dw)| [x + dx, y + dy, z + dz, w + dw])
         )
         .fold(HashMap::new(), |mut neighbours, cube| {
             *neighbours.entry(cube).or_insert(0) += 1;

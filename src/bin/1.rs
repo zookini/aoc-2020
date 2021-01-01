@@ -10,8 +10,8 @@ fn product(k: usize) -> u32 {
         .lines()
         .map(|line| line.parse().unwrap())
         .combinations(k)
-        .filter(|combination| combination.iter().sum::<u32>() == 2020)
-        .map(|combination| combination.iter().product::<u32>())
-        .next()
+        .find(|combination| combination.iter().sum::<u32>() == 2020)
         .unwrap()
+        .iter()
+        .product()
 }

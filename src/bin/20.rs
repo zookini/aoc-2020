@@ -8,7 +8,7 @@ fn main() {
         .iter()
         .find_map(|tile| tile
             .orientations()
-            .find(|a| !tiles.iter().find_map(|b| a.connect(&b, |a, b| a.top() == b.bottom() || a.left() == b.right())).is_some())
+            .find(|a| tiles.iter().find_map(|b| a.connect(&b, |a, b| a.top() == b.bottom() || a.left() == b.right())).is_none())
         )
         .unwrap();
 
@@ -17,11 +17,12 @@ fn main() {
 
     for i in 0..dim {
         if i != 0 {
-            tiles.iter().find_map(|tile| image[i - 1][0].connect(&tile, |a, b| a.bottom() == b.top())).map(|tile| image.push(vec![tile]));
+            image.push(vec![tiles.iter().find_map(|tile| image[i - 1][0].connect(&tile, |a, b| a.bottom() == b.top())).unwrap()]);
         }
 
         for j in 0..dim - 1 {
-            tiles.iter().find_map(|tile| image[i][j].connect(&tile, |a, b| a.right() == b.left())).map(|tile| image[i].push(tile));
+            let tile = tiles.iter().find_map(|tile| image[i][j].connect(&tile, |a, b| a.right() == b.left())).unwrap();
+            image[i].push(tile);
         }
     }
 
@@ -39,12 +40,12 @@ fn main() {
         })
         .collect();
 
-    let dragons = orientations(&borderless).map(|orientation| count_dragons(&orientation)).find(|&dragons| dragons > 0).unwrap();
+    let monsters = orientations(&borderless).map(|orientation| count_monsters(&orientation)).find(|&monsters| monsters > 0).unwrap();
 
-    println!("Part 2 {}", borderless.iter().flat_map(|s| s.chars().filter(|&c| c == '#')).count() - dragons * 15);
+    println!("Part 2 {}", borderless.iter().flat_map(|s| s.chars().filter(|&c| c == '#')).count() - monsters * 15);
 }
 
-fn count_dragons(image: &[String]) -> usize {
+fn count_monsters(image: &[String]) -> usize {
     image
         .windows(3)
         .flat_map(|w| regex!("#....##....##....###")
@@ -116,7 +117,7 @@ impl Tile {
     }
 
     fn rotate(&self) -> Self {
-        Self::new(self.id, (0..10).rev().cartesian_product((0..100).step_by(10)).fold(0, |grid, (i, j)| grid << 1 | self.grid >> i + j & 1))
+        Self::new(self.id, (0..10).rev().cartesian_product((0..100).step_by(10)).fold(0, |grid, (i, j)| grid << 1 | self.grid >> (i + j) & 1))
     }
 
     fn orientations(&self) -> impl Iterator<Item = Self> {

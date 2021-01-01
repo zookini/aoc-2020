@@ -27,17 +27,17 @@ enum Rule { Literal(char), Nums(Vec<Vec<usize>>) }
 
 impl Rule {
     fn parse(rule: &str) -> Self {
-        if rule.starts_with("\"") {
+        if rule.starts_with('"') {
             Self::Literal(rule.chars().nth(1).unwrap())
         } else {
-            Self::Nums(rule.split(" | ").map(|nums| nums.split(" ").flat_map(|n| n.parse()).collect()).collect())
+            Self::Nums(rule.split(" | ").map(|nums| nums.split(' ').flat_map(|n| n.parse()).collect()).collect())
         }
     }
 }
 
 fn matches(rules: &HashMap<usize, Rule>, mut stack: Vec<usize>, s: &str) -> bool {
     match stack.pop().map(|num| &rules[&num]) {
-        Some(Rule::Literal(l)) => s.chars().next().filter(|c| c == l).is_some() && matches(rules, stack, &s[1..]),
+        Some(Rule::Literal(l)) => s.starts_with(*l) && matches(rules, stack, &s[1..]),
         Some(Rule::Nums(nums)) => nums.iter().any(|ns| matches(rules, stack.iter().chain(ns.iter().rev()).copied().collect(), s)),
         None => s.is_empty(),
     }

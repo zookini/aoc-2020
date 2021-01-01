@@ -3,7 +3,7 @@ fn main() {
 
     println!("Part 2: {}", passwords(|i, j, c, password| [i, j]
         .iter()
-        .filter(|i| password.as_bytes()[*i - 1] == c.as_bytes()[0])
+        .filter(|&&i| password[i - 1..i] == c[0..1])
         .count() == 1
     ));
 }

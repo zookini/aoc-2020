@@ -6,10 +6,10 @@ fn main() {
         .map(|deck| deck.lines().skip(1).map(|line| line.parse().unwrap()).collect::<Deck>())
         .collect_tuple()
         .unwrap();
-
+        
     for &recurse in &[false, true] {
         let winner = play(a.clone(), b.clone(), recurse).1;
-        println!("Part {}: {:?}", recurse as usize + 1, (1..=winner.len()).rev().zip(winner).map(|(i, j)| i * j).sum::<usize>());
+        println!("Part {}: {:?}", recurse as u8 + 1, (1..=winner.len()).rev().zip(winner).map(|(i, j)| i * j).sum::<usize>());
     }
 }
 

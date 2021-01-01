@@ -3,21 +3,21 @@ use std::collections::HashMap;
 
 fn main() {
     println!("Part 1: {}", parse()
-        .map(|(mask, mem, value)| (mem, value & usize::from_str_radix(&mask.replace('X', "1"), 2).unwrap() | usize::from_str_radix(&mask.replace('X', "0"), 2).unwrap()))
+        .map(|(mask, mem, value)| (mem, value & u64::from_str_radix(&mask.replace('X', "1"), 2).unwrap() | u64::from_str_radix(&mask.replace('X', "0"), 2).unwrap()))
         .collect::<HashMap<_, _>>()
         .values()
-        .sum::<usize>()
+        .sum::<u64>()
     );
 
     println!("Part 2: {}", parse()
-        .flat_map(|(mask, mem, value)| addresses(mask.as_bytes(), 0, mem).map(move |address| (address, value)))
+        .flat_map(|(mask, mem, value)| addresses(mask, mem.rotate_right(36)).map(move |address| (address, value)))
         .collect::<HashMap<_, _>>()
         .values()
-        .sum::<usize>()
+        .sum::<u64>()
     );
 }
 
-fn parse() -> impl Iterator<Item = (&'static str, usize, usize)> {
+fn parse() -> impl Iterator<Item = (&'static str, u64, u64)> {
     include_str!("../../input/14.txt")
         .split("mask = ")
         .skip(1)
@@ -31,11 +31,10 @@ fn parse() -> impl Iterator<Item = (&'static str, usize, usize)> {
         )
 }
 
-fn addresses(mask: &[u8], i: usize, address:usize) -> Box<dyn Iterator<Item = usize>> {
-    match mask.get(i) {
-        Some(b'0') => addresses(mask, i + 1, address),
-        Some(b'1') => addresses(mask, i + 1, address | 1 << 35 - i),
-        Some(_) => Box::new(addresses(mask, i + 1, address).chain(addresses(mask, i + 1, address ^ 1 << 35 - i))),
-        None => Box::new(std::iter::once(address)),
+fn addresses(mask: &str, mem: u64) -> Box<dyn Iterator<Item = u64>> {
+    match mask.bytes().next() {
+        Some(b'X') => Box::new(addresses(&mask[1..], mem.rotate_left(1)).chain(addresses(&mask[1..], mem.rotate_left(1) ^ 1))),
+        Some(n) => addresses(&mask[1..], mem.rotate_left(1) | (n - b'0') as u64),
+        None => Box::new(std::iter::once(mem)),
     }
 }

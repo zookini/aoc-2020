@@ -9,7 +9,7 @@ fn aggregate(init: u32, op: fn(u32, u32) -> u32) -> u32 {
         .map(|group| group
             .lines()
             .map(|line| line.bytes().fold(0, |set, b| set | 1 << (b - b'a') as u32))
-            .fold(init, |a, b| op(a, b))
+            .fold(init, op)
             .count_ones()
         )
         .sum()

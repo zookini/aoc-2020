@@ -7,7 +7,7 @@ fn main() {
         .map(|(time, ids)| (time.parse().unwrap(), ids
             .split(',')
             .enumerate()
-            .filter_map(|(i, id)| id.parse().ok().map(|id| (i as i64, id)))
+            .filter_map(|(i, id)| Some((i as i64, id.parse().ok()?)))
             .collect()
         ))
         .unwrap();
